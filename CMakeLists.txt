@@ -14,10 +14,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 include_directories(headers/)
 
 add_executable(spanner
+    src/apsp.cu
     src/graph.cpp
     src/main.cpp
     src/minheap.cpp
-    src/sssp.cu
     src/three_spanner.cpp
     src/util.cpp
 )
