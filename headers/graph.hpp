@@ -14,7 +14,8 @@ class Graph {
         void add_edge(int u, int v, double w);
         void process_edge(int u, int v, double w);
 
-        std::pair<int,int> size();
+        int order();
+        int size();
         void print_adjacency_list();
 
         Graph spanner(int k);
@@ -25,7 +26,9 @@ class Graph {
 
     private:
         int num_vertices;
-        std::vector<std::set<std::pair<int,double>>> adj;
+        int num_edges;
+        std::vector<std::set<std::pair<int,int>>> adj;
+        std::vector<double> weight;
 };
 
 void floyd_warshall_gpu(const double *graph, int num_vertices, double *output);

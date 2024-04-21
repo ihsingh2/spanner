@@ -12,17 +12,23 @@
 
 Graph::Graph() {
     num_vertices = 0;
+    num_edges = 0;
     adj.resize(0);
+    weight.resize(0);
 }
 
 Graph::Graph(int __num_vertices) {
     num_vertices = __num_vertices;
+    num_edges = 0;
     adj.resize(num_vertices);
+    weight.resize(0);
 }
 
 Graph::Graph(int __num_vertices, std::vector<std::tuple<int,int,double>> __edges) {
     num_vertices = __num_vertices;
+    num_edges = 0;
     adj.resize(num_vertices);
+    weight.resize(0);
     for (auto edge: __edges) {
         int u = std::get<0>(edge);
         int v = std::get<1>(edge);
@@ -41,7 +47,9 @@ Graph::Graph(std::string filepath) {
             else {
                 std::stringstream ss(line);
                 ss >> num_vertices;
+                num_edges = 0;
                 adj.resize(num_vertices);
+                weight.resize(0);
                 break;
             }
         }
@@ -61,8 +69,11 @@ Graph::Graph(std::string filepath) {
 }
 
 void Graph::add_edge(int u, int v, double w) {
-    adj[u].insert({v, w});
-    adj[v].insert({u, w});
+    int idx = num_edges;
+    adj[u].insert({v, idx});
+    adj[v].insert({u, idx});
+    weight.push_back(w);
+    num_edges++;
 }
 
 void Graph::process_edge(int u, int v, double w) {
@@ -77,12 +88,12 @@ void Graph::process_edge(int u, int v, double w) {
     }
 }
 
-std::pair<int,int> Graph::size() {
-    int num_edges = 0;
-    for (int u = 0; u < num_vertices; u++) {
-        num_edges += adj[u].size();
-    }
-    return {num_vertices, num_edges / 2};
+int Graph::order() {
+    return num_vertices;
+}
+
+int Graph::size() {
+    return num_edges;
 }
 
 void Graph::print_adjacency_list() {
@@ -91,7 +102,10 @@ void Graph::print_adjacency_list() {
         if (adj[u].size() > 0) {
             auto it = adj[u].begin();
             while (true) {
-                std::cout << "(" << it->first << "," << it->second << ")";
+                int v = it->first;
+                int idx = it->second;
+                double w = weight[idx];
+                std::cout << "(" << v << "," << w << ")";
                 if (++it == adj[u].end())
                     break;
                 std::cout << ", ";
@@ -105,7 +119,8 @@ std::vector<std::vector<double>> Graph::floyd_warshall() {
     std::vector<std::vector<double>> dist(num_vertices, std::vector<double> (num_vertices, std::numeric_limits<double>::max()));
     for (int u = 0; u < num_vertices; u++) {
         dist[u][u] = 0;
-        for (auto [v, w]: adj[u]) {
+        for (auto [v, idx]: adj[u]) {
+            double w = weight[idx];
             dist[u][v] = w;
             dist[v][u] = w;
         }
@@ -169,10 +184,11 @@ std::vector<double> Graph::dijkstra_sssp(int u) {
         if (distance[u] == std::numeric_limits<double>::max())
             break;
 
-        for (auto e: adj[u]) {
-            if (inqueue[e.first]) {
-                if (Q.peek(e.first) > distance[u] + e.second) {
-                    Q.update(distance[u] + e.second, e.first);
+        for (auto [v, idx]: adj[u]) {
+            double w = weight[idx];
+            if (inqueue[v]) {
+                if (Q.peek(v) > distance[u] + w) {
+                    Q.update(v, distance[u] + w);
                 }
             }
         }

@@ -54,7 +54,7 @@ std::pair<double,int> MinHeap::pop() {
 	return max;
 }
 
-void MinHeap::decrease_key(double k, int i) {
+void MinHeap::decrease_key(int i, double k) {
 	if (k >= A[i].first)
 		throw std::logic_error("New key should be smaller than the current key.");
 	A[i].first = k;
@@ -65,8 +65,8 @@ void MinHeap::decrease_key(double k, int i) {
 	}
 }
 
-void MinHeap::update(double k, int v) {
+void MinHeap::update(int v, double k) {
 	if (M.find(v) == M.end())
 		throw std::invalid_argument("Value not in heap.");
-	decrease_key(k, M[v]);
+	decrease_key(M[v], k);
 }

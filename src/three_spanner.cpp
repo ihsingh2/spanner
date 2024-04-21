@@ -31,24 +31,25 @@ Graph Graph::three_spanner() {
     for (int u = 0; u < num_vertices; u++) {
         if (IS_UNCLUSTERED(u)) {
             double w_min = std::numeric_limits<double>::max();
-            std::pair<int,double> edge = {-1,-1};
-            for (auto [v, w]: adj[u]) {
+            for (auto [v, idx]: adj[u]) {
+                double w = weight[idx];
                 if (IS_CLUSTER_CENTER(v) && w < w_min) {
                     C[u] = v;
                     w_min = w;
-                    edge = {v, w};
                 }
             }
-            if (edge.first != -1) {
-                S.add_edge(u, edge.first, edge.second);
-                for (auto [v, w]: adj[u]) {
+            if (C[u] != -1) {
+                S.add_edge(u, C[u], w_min);
+                for (auto [v, idx]: adj[u]) {
+                    double w = weight[idx];
                     if (w < w_min) {
                         S.add_edge(u, v, w);
                     }
                 }
             }
             else {
-                for (auto [v, w]: adj[u]) {
+                for (auto [v, idx]: adj[u]) {
+                    double w = weight[idx];
                     S.add_edge(u, v, w);
                 }
             }
@@ -57,7 +58,8 @@ Graph Graph::three_spanner() {
 
     // segregate inter-cluster edges
     for (int u = 0; u < num_vertices; u++) {
-        for (auto [v, w]: adj[u]) {
+        for (auto [v, idx]: adj[u]) {
+            double w = weight[idx];
             if (IN_DIFF_CLUSTER(u, v)) {
                 edges[u].insert({v, w});
                 edges[v].insert({u, w});
