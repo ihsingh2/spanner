@@ -3,6 +3,7 @@
 #include <util.hpp>
 #include <cmath>
 #include <limits>
+#include <algorithm>
 #include <unordered_map>
 #include <stdexcept>
 #include <iostream>
@@ -70,10 +71,17 @@ Graph::Graph(std::string filepath) {
 
 void Graph::add_edge(int u, int v, double w) {
     int idx = num_edges;
-    adj[u].insert({v, idx});
-    adj[v].insert({u, idx});
-    weight.push_back(w);
-    num_edges++;
+    auto pos = std::find_if(adj[u].begin(), adj[u].end(),
+                            [v](std::pair<int,int> const &b) { 
+                                return b.first == v; 
+                            });
+
+    if (pos == adj[u].end()) {
+        adj[u].insert({v, idx});
+        adj[v].insert({u, idx});
+        weight.push_back(w);
+        num_edges++;
+    }
 }
 
 void Graph::process_edge(int u, int v, double w) {
