@@ -18,6 +18,7 @@ add_executable(spanner
     src/graph.cpp
     src/main.cpp
     src/minheap.cpp
+    src/spanner.cpp
     src/three_spanner.cpp
     src/util.cpp
 )

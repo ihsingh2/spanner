@@ -7,7 +7,7 @@ num_vertices = int(random.normalvariate(mean, dev))
 num_edges = int(num_vertices**2 / 4)
 edges = { i: [] for i in range(num_vertices) }
 
-with open('custom.mtx', 'w') as f:
+with open('input/custom.mtx', 'w') as f:
     f.write(f'{num_vertices} {num_vertices} {num_edges}\n')
 
     while num_edges > 0:

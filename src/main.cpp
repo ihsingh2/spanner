@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    Graph S = G.three_spanner();
+    Graph S = G.spanner(3);
 
     auto end = std::chrono::high_resolution_clock::now();
     auto elapsed = end - start;
