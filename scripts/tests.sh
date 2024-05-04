@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ "$#" -ne 1 ]; then
+    echo "usage: tests.sh <t>"
+    exit 0
+fi
+
+t=$1
+
 input=(
     "USAir97"
     "semeion_10NN"
@@ -15,7 +22,7 @@ for i in {1..5}; do
     echo --------------- ITERATION $i ---------------
     for file in ${input[@]}; do
         echo $file
-        ./build/spanner input/$file.mtx
+        ./build/spanner input/$file.mtx $t
         echo
     done
 done

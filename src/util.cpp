@@ -1,16 +1,25 @@
 #include <util.hpp>
 #include <iostream>
-#include <cassert>
 #include <limits>
+#include <string>
 
-double assert_stretch_bound(std::vector<std::vector<double>> dist1, std::vector<std::vector<double>> dist2, int max_stretch) {
+void assert(std::string name, bool cond) {
+    if (!cond) {
+        std::cout << "Assertion Failed: " << name << std::endl;
+        exit(1);
+    }
+}
+
+double assert_stretch_bound(std::vector<std::vector<double>> dist1, std::vector<std::vector<double>> dist2, double max_stretch) {
     double stretch = std::numeric_limits<double>::min();
-    assert(dist1.size() == dist2.size());
+    assert("num_vertices", dist1.size() == dist2.size());
     for (int i = 0; i < dist1.size(); i++) {
-        assert(dist1[i].size() == dist2[i].size());
+        assert("num_vertices", dist1[i].size() == dist2[i].size());
         for (int j = 0; j < dist1[i].size(); j++) {
-            assert(max_stretch * dist1[i][j] >= dist2[i][j]);
-            stretch = std::max(stretch, dist2[i][j] / dist1[i][j]);
+            if (dist1[i][j] != 0) {
+                stretch = std::max(stretch, dist2[i][j] / dist1[i][j]);
+            }
+            assert("stretch_factor", stretch <= max_stretch);
         }
     }
     return stretch;

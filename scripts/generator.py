@@ -1,6 +1,11 @@
 import random
+import sys
 
-mean = 100000
+if len(sys.argv) != 2:
+    print(f'usage: {sys.argv[0]} <num_vertices>')
+    sys.exit(0)
+
+mean = int(sys.argv[1])
 dev = mean / 10
 
 num_vertices = int(random.normalvariate(mean, dev))

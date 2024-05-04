@@ -1,20 +1,25 @@
 #include <graph.hpp>
 #include <util.hpp>
-#include <iostream>
 #include <chrono>
+#include <iostream>
+#include <string>
 
 int main(int argc, char* argv[])
 {
-    if (argc != 2) {
-        std::cerr << "usage: " << argv[0] << " <graph.mtx>" << std::endl;
+    if (argc != 3) {
+        std::cerr << "usage: " << argv[0] << " <graph.mtx> <t>" << std::endl;
         return 0;
     }
 
-    Graph G(argv[1]);
+    std::string filepath = argv[1];
+    int t = atoi(argv[2]);
+
+    Graph G(filepath);
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    Graph S = G.spanner(3);
+    Graph S = G.spanner(t);
+    std::cout << S.order() << " " << S.size() << std::endl;
 
     auto end = std::chrono::high_resolution_clock::now();
     auto elapsed = end - start;
@@ -23,8 +28,8 @@ int main(int argc, char* argv[])
 
     std::vector<std::vector<double>> dist_original = G.floyd_warshall();
     std::vector<std::vector<double>> dist_stretch = S.floyd_warshall();
-    double t = assert_stretch_bound(dist_original, dist_stretch, 3);
-    std::cout << "Stretch factor: " << t << std::endl;
+    double stretch = assert_stretch_bound(dist_original, dist_stretch, (double) 2 * t - 1);
+    std::cout << "Stretch factor: " << stretch << std::endl;
 
     return 0;
 }
