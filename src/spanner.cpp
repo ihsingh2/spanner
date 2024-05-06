@@ -17,7 +17,7 @@
 #define WAS_IN_CLUSTER(v, x) C_prev[v] == x
 #define WAS_CLUSTER_CENTER(u) WAS_IN_CLUSTER(u, u)
 
-Graph Graph::spanner(int k) {
+Graph Graph::spanner(int k, int joining_method) {
     if (k <= 0) {
         throw std::invalid_argument("Expected a positive value for argument k.");
     }
@@ -25,16 +25,28 @@ Graph Graph::spanner(int k) {
         return *this;
     }
 
+    int num_iterations;
+    if (joining_method == VERTEX_CLUSTER_JOINING) {
+        num_iterations = k - 1;
+    }
+    else if (joining_method == CLUSTER_CLUSTER_JOINING) {
+        num_iterations = k / 2;
+    }
+    else {
+        throw std::invalid_argument("Joining method not recognized");
+    }
+
     Graph S(num_vertices);
     std::vector<std::set<std::pair<int,int>>> edges = adj;
     std::vector<std::set<std::pair<int,double>>> E_prev(num_vertices);
     std::vector<int> C_prev(num_vertices);
+    std::vector<int> C_prev_prev(num_vertices);
     for (int u = 0; u < num_vertices; u++) {
         C_prev[u] = u;
     }
 
     // I: Forming the clusters
-    for (int i = 0; i < k - 1; i++) {
+    for (int i = 0; i < num_iterations; i++) {
         std::vector<std::set<std::pair<int,double>>> E_i(num_vertices);
         std::vector<int> C_i(num_vertices, UNCLUSTERED);
         std::vector<bool> removed(num_edges, false);
@@ -148,7 +160,7 @@ Graph Graph::spanner(int k) {
         for (int u = 0; u < num_vertices; u++) {
             if (IS_CLUSTERED(u)) {
                 for (auto [v, idx]: edges[u]) {
-                    if (C_i[u] == C_i[v]) {
+                    if (IN_SAME_CLUSTER(u, v)) {
                         removed[idx] = true;
                     }
                 }
@@ -167,27 +179,104 @@ Graph Graph::spanner(int k) {
         }
 
         E_prev = E_i;
+        C_prev_prev = C_prev;
         C_prev = C_i;
     }
 
-    // II: Vertex cluster joining
-    for (int u = 0; u < num_vertices; u++) {
-        if (edges[u].size() > 0) {
+    // II: cluster joining
+    if (joining_method == VERTEX_CLUSTER_JOINING) {
+        for (int u = 0; u < num_vertices; u++) {
+            if (IN_V_PRIME(u)) {
+                for (int x = 0; x < num_vertices; x++) {
+                    if (WAS_CLUSTER_CENTER(x)) {
+                        int v_min = -1;
+                        double w_min = std::numeric_limits<double>::max();
+                        for (auto [v, idx]: edges[u]) {
+                            double w = weight[idx];
+                            if (WAS_IN_CLUSTER(v, x)) {
+                                if (w < w_min) {
+                                    v_min = v;
+                                    w_min = w;
+                                }
+                            }
+                        }
+                        if (v_min != -1) {
+                            S.add_edge(u, v_min, w_min);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (joining_method == CLUSTER_CLUSTER_JOINING) {
+        if (k % 2 == 1) {
+            std::vector<int> centres;
             for (int x = 0; x < num_vertices; x++) {
-                if (C_prev[x] == x) {
+                if (WAS_CLUSTER_CENTER(x)) {
+                    centres.push_back(x);
+                }
+            }
+            for (int i = 0; i < centres.size(); i++) {
+                int x = centres[i];
+                for (int j = i + 1; j < centres.size(); j++) {
+                    int y = centres[j];
+                    int u_min = -1;
                     int v_min = -1;
                     double w_min = std::numeric_limits<double>::max();
-                    for (auto [v, idx]: edges[u]) {
-                        double w = weight[idx];
-                        if (WAS_IN_CLUSTER(v, x)) {
-                            if (w < w_min) {
-                                v_min = v;
-                                w_min = w;
+                    for (int u = 0; u < num_vertices; u++) {
+                        if (WAS_IN_CLUSTER(u, x)) {
+                            for (auto [v, idx]: edges[u]) {
+                                double w = weight[idx];
+                                if (WAS_IN_CLUSTER(v, y)) {
+                                    if (w < w_min) {
+                                        u_min = u;
+                                        v_min = v;
+                                        w_min = w;
+                                    }
+                                }
                             }
                         }
                     }
                     if (v_min != -1) {
-                        S.add_edge(u, v_min, w_min);
+                        S.add_edge(u_min, v_min, w_min);
+                    }
+                }
+            }
+        }
+        else {
+            std::vector<int> centres;
+            std::vector<int> centres_old;
+            for (int x = 0; x < num_vertices; x++) {
+                if (WAS_CLUSTER_CENTER(x)) {
+                    centres.push_back(x);
+                }
+                else if (C_prev_prev[x] = x) {
+                    centres_old.push_back(x);
+                }
+            }
+            for (int i = 0; i < centres.size(); i++) {
+                int x = centres[i];
+                for (int j = 0; j < centres_old.size(); j++) {
+                    int y = centres_old[j];
+                    int u_min = -1;
+                    int v_min = -1;
+                    double w_min = std::numeric_limits<double>::max();
+                    for (int u = 0; u < num_vertices; u++) {
+                        if (WAS_IN_CLUSTER(u, x)) {
+                            for (auto [v, idx]: edges[u]) {
+                                double w = weight[idx];
+                                if (C_prev_prev[v] == y) {
+                                    if (w < w_min) {
+                                        u_min = u;
+                                        v_min = v;
+                                        w_min = w;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (v_min != -1) {
+                        S.add_edge(u_min, v_min, w_min);
                     }
                 }
             }

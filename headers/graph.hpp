@@ -4,6 +4,9 @@
 #include <list>
 #include <set>
 
+#define VERTEX_CLUSTER_JOINING 0
+#define CLUSTER_CLUSTER_JOINING 1
+
 class Graph {
     public:
         Graph();
@@ -18,7 +21,7 @@ class Graph {
         int size();
         void print_adjacency_list();
 
-        Graph spanner(int k);
+        Graph spanner(int k, int joining_method);
         Graph three_spanner();
         std::vector<std::vector<double>> floyd_warshall();
         std::vector<std::vector<double>> dijkstra_apsp();

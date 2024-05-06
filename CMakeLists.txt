@@ -22,3 +22,5 @@ add_executable(spanner
     src/three_spanner.cpp
     src/util.cpp
 )
+
+target_compile_definitions(spanner PRIVATE TIMING VALIDATION)

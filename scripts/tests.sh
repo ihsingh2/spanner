@@ -1,11 +1,19 @@
 #!/bin/bash
 
-if [ "$#" -ne 1 ]; then
-    echo "usage: tests.sh <t>"
+if [ $# -lt 1 ]; then
+    echo "usage: $0 <algorithm> [<k>]"
     exit 0
 fi
 
-t=$1
+algorithm=$1
+
+if [ $algorithm -gt 0 ]; then
+    if [ $# -lt 2 ]; then
+        echo "usage: $0 <algorithm> [<k>]"
+        exit 0
+    fi
+    k=$2
+fi
 
 input=(
     "USAir97"
@@ -22,7 +30,11 @@ for i in {1..5}; do
     echo --------------- ITERATION $i ---------------
     for file in ${input[@]}; do
         echo $file
-        ./build/spanner input/$file.mtx $t
+        if [ $algorithm -gt 0 ]; then
+            ./build/spanner input/$file.mtx $algorithm $k
+        else
+            ./build/spanner input/$file.mtx $algorithm
+        fi;
         echo
     done
 done
