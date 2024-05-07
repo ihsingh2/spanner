@@ -125,28 +125,8 @@ Graph Graph::spanner(int k, int joining_method) {
         // add edges to spanner
         for (int u = 0; u < num_vertices; u++) {
             if (IN_V_PRIME(u) && IS_UNCLUSTERED(u)) {
-                if (V_min[u] == -1) {
-                    for (int x = 0; x < num_vertices; x++) {
-                        if (WAS_CLUSTER_CENTER(x)) {
-                            int v_min = -1;
-                            double w_min = std::numeric_limits<double>::max();
-                            for (auto [v, idx]: edges[u]) {
-                                double w = weight[idx];
-                                if (WAS_IN_CLUSTER(v, x)) {
-                                    removed[idx] = true;
-                                    if (w < w_min) {
-                                        v_min = v;
-                                        w_min = w;
-                                    }
-                                }
-                            }
-                            if (v_min != -1) {
-                                S.add_edge(u, v_min, w_min);
-                            }
-                        }
-                    }
-                }
-                else {
+                double w_e_v;
+                if (V_min[u] != -1) {
                     int v_min = V_min[u];
                     double w_min = W_min[u];
                     C_i[u] = C_i[v_min];
@@ -158,29 +138,29 @@ Graph Graph::spanner(int k, int joining_method) {
                             removed[idx] = true;
                         }
                     }
-                    double w_e_v = w_min;
-                    for (int x = 0; x < num_vertices; x++) {
-                        if (WAS_CLUSTER_CENTER(x)) {
-                            v_min = -1;
-                            w_min = std::numeric_limits<double>::max();
-                            for (auto [v, idx]: edges[u]) {
-                                double w = weight[idx];
-                                if (WAS_IN_CLUSTER(v, x)) {
-                                    if (w < w_min) {
-                                        v_min = v;
-                                        w_min = w;
-                                    }
-                                }
-                            }
-                            if (v_min != -1 && w_min < w_e_v) {
-                                S.add_edge(u, v_min, w_min);
-                                for (auto [v, idx]: edges[u]) {
-                                    if (WAS_IN_CLUSTER(v, x)) {
-                                        removed[idx] = true;
-                                    }
-                                }
-                            }
+                    w_e_v = w_min;
+                }
+                else
+                    w_e_v = std::numeric_limits<double>::max();
+
+                std::unordered_map<int,std::pair<int,double>> A;
+                for (auto [v, idx]: edges[u]) {
+                    double w = weight[idx];
+                    int x = C_prev[v];
+                    auto it = A.find(x);
+                    if (it == A.end() || w < it->second.second) {
+                        if (w < w_e_v) {
+                            A[x] = {v, w};
                         }
+                    }
+                }
+                for (auto [key, value]: A) {
+                    S.add_edge(u, value.first, value.second);
+                }
+                for (auto [v, idx]: edges[u]) {
+                    int x = C_prev[v];
+                    if (A.find(x) != A.end()) {
+                        removed[idx] = true;
                     }
                 }
             }

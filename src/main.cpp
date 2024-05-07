@@ -47,7 +47,9 @@ int main(int argc, char* argv[])
             throw std::invalid_argument("Invalid argument for algorithm");
     }
 
-    std::cout << "|V(S)| = " << S.order() << ", |E(S)| = " << S.size() << std::endl;
+    std::cout << "|V| = " << S.order() << std::endl;
+    std::cout << "|E(G)| = " << G.size() << std::endl;
+    std::cout << "|E(S)| = " << S.size() << std::endl;
 
 #ifdef VALIDATION
     std::vector<std::vector<double>> dist_original = G.floyd_warshall();
