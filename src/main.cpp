@@ -23,11 +23,11 @@ int main(int argc, char* argv[])
 
     std::string filepath = argv[1];
     int alg = atoi(argv[2]);
-    int t = 2;
+    int k = 2;
     if (alg > 0) {
         if (argc < 4)
             return usage(argv);
-        t = atoi(argv[3]);
+        k = atoi(argv[3]);
     }
 
     Graph G(filepath);
@@ -38,10 +38,10 @@ int main(int argc, char* argv[])
             S = G.three_spanner();
             break;
         case 1:
-            S = G.spanner(t, VERTEX_CLUSTER_JOINING);
+            S = G.spanner(k, VERTEX_CLUSTER_JOINING);
             break;
         case 2:
-            S = G.spanner(t, CLUSTER_CLUSTER_JOINING);
+            S = G.spanner(k, CLUSTER_CLUSTER_JOINING);
             break;
         default:
             throw std::invalid_argument("Invalid argument for algorithm");
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 #ifdef VALIDATION
     std::vector<std::vector<double>> dist_original = G.floyd_warshall();
     std::vector<std::vector<double>> dist_stretch = S.floyd_warshall();
-    double stretch = assert_stretch_bound(dist_original, dist_stretch, (double) 2 * t - 1);
+    double stretch = assert_stretch_bound(dist_original, dist_stretch, (double) 2 * k - 1);
     std::cout << "Stretch factor: " << stretch << std::endl;
 #endif
 

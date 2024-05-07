@@ -219,98 +219,61 @@ Graph Graph::spanner(int k, int joining_method) {
     if (joining_method == VERTEX_CLUSTER_JOINING) {
         for (int u = 0; u < num_vertices; u++) {
             if (IN_V_PRIME(u)) {
-                for (int x = 0; x < num_vertices; x++) {
-                    if (WAS_CLUSTER_CENTER(x)) {
-                        int v_min = -1;
-                        double w_min = std::numeric_limits<double>::max();
-                        for (auto [v, idx]: edges[u]) {
-                            double w = weight[idx];
-                            if (WAS_IN_CLUSTER(v, x)) {
-                                if (w < w_min) {
-                                    v_min = v;
-                                    w_min = w;
-                                }
-                            }
-                        }
-                        if (v_min != -1) {
-                            S.add_edge(u, v_min, w_min);
+                std::unordered_map<int,std::pair<int,double>> A;
+                int x = C_prev[u];
+                for (auto [v, idx]: edges[u]) {
+                    double w = weight[idx];
+                    int y = C_prev[v];
+                    if (x != y) {
+                        auto it = A.find(y);
+                        if (it == A.end() || w < it->second.second) {
+                            A[y] = {v, w};
                         }
                     }
+                }
+                for (auto [key, value]: A) {
+                    S.add_edge(u, value.first, value.second);
                 }
             }
         }
     }
     else if (joining_method == CLUSTER_CLUSTER_JOINING) {
         if (k % 2 == 1) {
-            std::vector<int> centres;
-            for (int x = 0; x < num_vertices; x++) {
-                if (WAS_CLUSTER_CENTER(x)) {
-                    centres.push_back(x);
-                }
-            }
-            for (int i = 0; i < centres.size(); i++) {
-                int x = centres[i];
-                for (int j = i + 1; j < centres.size(); j++) {
-                    int y = centres[j];
-                    int u_min = -1;
-                    int v_min = -1;
-                    double w_min = std::numeric_limits<double>::max();
-                    for (int u = 0; u < num_vertices; u++) {
-                        if (WAS_IN_CLUSTER(u, x)) {
-                            for (auto [v, idx]: edges[u]) {
-                                double w = weight[idx];
-                                if (WAS_IN_CLUSTER(v, y)) {
-                                    if (w < w_min) {
-                                        u_min = u;
-                                        v_min = v;
-                                        w_min = w;
-                                    }
-                                }
-                            }
+            std::unordered_map<int,std::tuple<int,int,double>> A;
+            for (int u = 0; u < num_vertices; u++) {
+                int x = C_prev[u];
+                for (auto [v, idx]: edges[u]) {
+                    double w = weight[idx];
+                    int y = C_prev[v];
+                    if (x < y) {
+                        auto it = A.find(x * num_vertices + y);
+                        if (it == A.end() || w < std::get<2>(it->second)) {
+                            A[x * num_vertices + y] = {u, v, w};
                         }
                     }
-                    if (v_min != -1) {
-                        S.add_edge(u_min, v_min, w_min);
-                    }
                 }
+            }
+            for (auto [key, value]: A) {
+                S.add_edge(std::get<0>(value), std::get<1>(value), std::get<2>(value));
             }
         }
         else {
-            std::vector<int> centres;
-            std::vector<int> centres_old;
-            for (int x = 0; x < num_vertices; x++) {
-                if (WAS_CLUSTER_CENTER(x)) {
-                    centres.push_back(x);
-                }
-                else if (C_prev_prev[x] = x) {
-                    centres_old.push_back(x);
-                }
-            }
-            for (int i = 0; i < centres.size(); i++) {
-                int x = centres[i];
-                for (int j = 0; j < centres_old.size(); j++) {
-                    int y = centres_old[j];
-                    int u_min = -1;
-                    int v_min = -1;
-                    double w_min = std::numeric_limits<double>::max();
-                    for (int u = 0; u < num_vertices; u++) {
-                        if (WAS_IN_CLUSTER(u, x)) {
-                            for (auto [v, idx]: edges[u]) {
-                                double w = weight[idx];
-                                if (C_prev_prev[v] == y) {
-                                    if (w < w_min) {
-                                        u_min = u;
-                                        v_min = v;
-                                        w_min = w;
-                                    }
-                                }
-                            }
+            std::unordered_map<int,std::tuple<int,int,double>> A;
+            for (int u = 0; u < num_vertices; u++) {
+                int x = C_prev[u];
+                for (auto [v, idx]: edges[u]) {
+                    double w = weight[idx];
+                    int y = C_prev_prev[v];
+                    if (x != y) {
+                        auto it = A.find(x * num_vertices + y);
+                        if (it == A.end() || w < std::get<2>(it->second)) {
+                            A[x * num_vertices + y] = {u, v, w};
                         }
                     }
-                    if (v_min != -1) {
-                        S.add_edge(u_min, v_min, w_min);
-                    }
                 }
+            }
+            for (auto [key, value]: A) {
+                S.add_edge(std::get<0>(value), std::get<1>(value), std::get<2>(value));
             }
         }
     }

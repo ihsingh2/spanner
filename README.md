@@ -48,6 +48,10 @@ python scripts/generator.py <num_vertices>
 
 - ``input/`` - Undirected Weighted Graphs from [SuiteSparse Matrix Collection](https://sparse.tamu.edu/) (Matrix Market).
 
+- ``plots/`` - Data concerning runtime behaviour of algorithm.
+
+- ``report/`` - Project report.
+
 - ``scripts/`` - Helper scripts for input generation and testing.
 
 - ``src/`` - Main C++/CUDA implementation.
