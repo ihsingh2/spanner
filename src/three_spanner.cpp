@@ -2,8 +2,15 @@
 #include <util.hpp>
 #include <cmath>
 #include <ctime>
+#include <iostream>
 #include <limits>
 #include <unordered_map>
+
+#ifdef TIMING
+#include <chrono>
+#define clock() std::chrono::high_resolution_clock::now()
+#define clock_t std::chrono::time_point<std::chrono::high_resolution_clock>
+#endif
 
 #define UNCLUSTERED -1
 #define IS_CLUSTERED(u) C[u] != UNCLUSTERED
@@ -17,6 +24,18 @@ Graph Graph::three_spanner() {
     std::vector<int> C(num_vertices, UNCLUSTERED);
     std::vector<std::set<std::pair<int,double>>> edges(num_vertices);
 
+#ifdef TIMING
+    std::vector<std::string> steps({
+        "Sampling cluster centres",
+        "Formation of clusters",
+        "Segregating inter-cluster edges",
+        "Joining vertices with neighboring clusters"
+    });
+    std::vector<clock_t> timestamps;
+    std::vector<int64_t> differences(steps.size(), 0);
+    timestamps.push_back(clock());
+#endif
+
     // sample cluster centres
     srand(time(NULL));
     double prob = 1 / std::sqrt(num_vertices);
@@ -26,6 +45,10 @@ Graph Graph::three_spanner() {
             C[u] = u;
         }
     }
+
+#ifdef TIMING
+    timestamps.push_back(clock());
+#endif
 
     // form clusters
     for (int u = 0; u < num_vertices; u++) {
@@ -56,6 +79,10 @@ Graph Graph::three_spanner() {
         }
     }
 
+#ifdef TIMING
+    timestamps.push_back(clock());
+#endif
+
     // segregate inter-cluster edges
     for (int u = 0; u < num_vertices; u++) {
         for (auto [v, idx]: adj[u]) {
@@ -67,7 +94,11 @@ Graph Graph::three_spanner() {
         }
     }
 
-    // join vertices with neighbouring clusters
+#ifdef TIMING
+    timestamps.push_back(clock());
+#endif
+
+    // join vertices with neighboring clusters
     for (int u = 0; u < num_vertices; u++) {
         std::unordered_map<int,std::pair<int,double>> A;
         for (auto [v, w]: edges[u]) {
@@ -81,6 +112,24 @@ Graph Graph::three_spanner() {
             S.add_edge(u, value.first, value.second);
         }
     }
+
+#ifdef TIMING
+    timestamps.push_back(clock());
+#endif
+
+#ifdef TIMING
+    for (int i = 1; i < timestamps.size(); i++) {
+        auto elapsed = timestamps[i] - timestamps[i - 1];
+        auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
+        differences[i - 1] = milliseconds.count();
+    }
+    int64_t total = 0;
+    for (int i = 0; i < differences.size(); i++) {
+        total += differences[i];
+        std::cout << steps[i] << ": " << differences[i] << " ms" << std::endl;
+    }
+    std::cout << "Total execution time: " << total << " ms" << std::endl;
+#endif
 
     return S;
 }

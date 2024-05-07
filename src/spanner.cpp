@@ -7,6 +7,12 @@
 #include <stdexcept>
 #include <unordered_map>
 
+#ifdef TIMING
+#include <chrono>
+#define clock() std::chrono::high_resolution_clock::now()
+#define clock_t std::chrono::time_point<std::chrono::high_resolution_clock>
+#endif
+
 #define UNCLUSTERED -1
 #define IS_CLUSTERED(u) C_i[u] != UNCLUSTERED
 #define IS_UNCLUSTERED(u) C_i[u] == UNCLUSTERED
@@ -45,11 +51,27 @@ Graph Graph::spanner(int k, int joining_method) {
         C_prev[u] = u;
     }
 
+#ifdef TIMING
+    std::vector<std::string> steps({
+        "Sampling cluster centres",
+        "Finding neighbouring clusters",
+        "Adding edges to the spanner",
+        "Removing intra cluster edges",
+        "Cluster joining"
+    });
+    std::vector<std::vector<clock_t>> timestamps(num_iterations);
+    std::vector<int64_t> differences(steps.size(), 0);
+#endif
+
     // I: Forming the clusters
     for (int i = 0; i < num_iterations; i++) {
         std::vector<std::set<std::pair<int,double>>> E_i(num_vertices);
         std::vector<int> C_i(num_vertices, UNCLUSTERED);
         std::vector<bool> removed(num_edges, false);
+
+#ifdef TIMING
+        timestamps[i].push_back(clock());
+#endif
 
         // sample cluster centres
         srand(time(NULL));
@@ -77,6 +99,10 @@ Graph Graph::spanner(int k, int joining_method) {
             }
         }
 
+#ifdef TIMING
+        timestamps[i].push_back(clock());
+#endif
+
         // find nearest cluster
         std::vector<int> V_min(num_vertices, -1);
         std::vector<double> W_min(num_vertices, std::numeric_limits<double>::max());
@@ -91,6 +117,10 @@ Graph Graph::spanner(int k, int joining_method) {
                 }
             }
         }
+
+#ifdef TIMING
+        timestamps[i].push_back(clock());
+#endif
 
         // add edges to spanner
         for (int u = 0; u < num_vertices; u++) {
@@ -156,6 +186,10 @@ Graph Graph::spanner(int k, int joining_method) {
             }
         }
 
+#ifdef TIMING
+        timestamps[i].push_back(clock());
+#endif
+
         // remove intra-cluster edges
         for (int u = 0; u < num_vertices; u++) {
             if (IS_CLUSTERED(u)) {
@@ -178,10 +212,28 @@ Graph Graph::spanner(int k, int joining_method) {
             }
         }
 
+#ifdef TIMING
+        timestamps[i].push_back(clock());
+#endif
+
         E_prev = E_i;
         C_prev_prev = C_prev;
         C_prev = C_i;
     }
+
+#ifdef TIMING
+    for (int i = 1; i < steps.size(); i++) {
+        for (int j = 0; j < num_iterations; j++) {
+            auto elapsed = timestamps[j][i] - timestamps[j][i - 1];
+            auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
+            differences[i - 1] += milliseconds.count();
+        }
+    }
+#endif
+
+#ifdef TIMING
+    timestamps[0][0] = clock();
+#endif
 
     // II: cluster joining
     if (joining_method == VERTEX_CLUSTER_JOINING) {
@@ -282,6 +334,24 @@ Graph Graph::spanner(int k, int joining_method) {
             }
         }
     }
+
+#ifdef TIMING
+    timestamps[0][1] = clock();
+    {
+        auto elapsed = timestamps[0][1] - timestamps[0][0];
+        auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
+        differences[steps.size() - 1] = milliseconds.count();
+    }
+#endif
+
+#ifdef TIMING
+    int64_t total = 0;
+    for (int i = 0; i < differences.size(); i++) {
+        total += differences[i];
+        std::cout << steps[i] << ": " << differences[i] << " ms" << std::endl;
+    }
+    std::cout << "Total execution time: " << total << " ms" << std::endl;
+#endif
 
     return S;
 }

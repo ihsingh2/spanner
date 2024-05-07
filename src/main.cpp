@@ -33,10 +33,6 @@ int main(int argc, char* argv[])
     Graph G(filepath);
     Graph S;
 
-#ifdef TIMING
-    auto start = std::chrono::high_resolution_clock::now();
-#endif
-
     switch(alg) {
         case 0:
             S = G.three_spanner();
@@ -50,13 +46,6 @@ int main(int argc, char* argv[])
         default:
             throw std::invalid_argument("Invalid argument for algorithm");
     }
-
-#ifdef TIMING
-    auto end = std::chrono::high_resolution_clock::now();
-    auto elapsed = end - start;
-    auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
-    std::cout << "Total execution time: " << milliseconds.count() << " ms" << std::endl;
-#endif
 
     std::cout << "|V(S)| = " << S.order() << ", |E(S)| = " << S.size() << std::endl;
 
