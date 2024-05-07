@@ -1,8 +1,7 @@
 #pragma once
+#include <list>
 #include <string>
 #include <vector>
-#include <list>
-#include <set>
 
 #define VERTEX_CLUSTER_JOINING 0
 #define CLUSTER_CLUSTER_JOINING 1
@@ -30,7 +29,7 @@ class Graph {
     private:
         int num_vertices;
         int num_edges;
-        std::vector<std::set<std::pair<int,int>>> adj;
+        std::vector<std::list<std::pair<int,int>>> adj;
         std::vector<double> weight;
 };
 

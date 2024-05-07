@@ -1,6 +1,6 @@
 #pragma once
-#include <vector>
 #include <cstdlib>
+#include <vector>
 
 double assert_stretch_bound(std::vector<std::vector<double>> dist_original, std::vector<std::vector<double>> dist_stretch, double stretch_factor);
 void print_matrix(std::vector<std::vector<double>> matrix);

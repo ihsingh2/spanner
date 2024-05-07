@@ -1,5 +1,5 @@
-#include <minheap.hpp>
 #include <stdexcept>
+#include <minheap.hpp>
 
 MinHeap::MinHeap(std::vector<std::pair<double,int>> D) {
 	A = D;

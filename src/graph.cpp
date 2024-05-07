@@ -1,15 +1,17 @@
-#include <graph.hpp>
-#include <minheap.hpp>
-#include <util.hpp>
+#include <algorithm>
 #include <cmath>
 #include <limits>
-#include <algorithm>
 #include <unordered_map>
+
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
 #include <sstream>
+
 // #include <omp.h>
+#include <graph.hpp>
+#include <minheap.hpp>
+#include <util.hpp>
 
 Graph::Graph() {
     num_vertices = 0;
@@ -77,8 +79,8 @@ void Graph::add_edge(int u, int v, double w) {
                             });
 
     if (pos == adj[u].end()) {
-        adj[u].insert({v, idx});
-        adj[v].insert({u, idx});
+        adj[u].push_back({v, idx});
+        adj[v].push_back({u, idx});
         weight.push_back(w);
         num_edges++;
     }

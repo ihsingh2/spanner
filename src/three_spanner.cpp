@@ -1,10 +1,10 @@
-#include <graph.hpp>
-#include <util.hpp>
 #include <cmath>
 #include <ctime>
-#include <iostream>
 #include <limits>
 #include <unordered_map>
+#include <iostream>
+#include <graph.hpp>
+#include <util.hpp>
 
 #ifdef TIMING
 #include <chrono>
@@ -22,7 +22,7 @@
 Graph Graph::three_spanner() {
     Graph S(num_vertices);
     std::vector<int> C(num_vertices, UNCLUSTERED);
-    std::vector<std::set<std::pair<int,double>>> edges(num_vertices);
+    std::vector<std::list<std::pair<int,double>>> edges(num_vertices);
 
 #ifdef TIMING
     std::vector<std::string> steps({
@@ -88,8 +88,8 @@ Graph Graph::three_spanner() {
         for (auto [v, idx]: adj[u]) {
             double w = weight[idx];
             if (IN_DIFF_CLUSTER(u, v)) {
-                edges[u].insert({v, w});
-                edges[v].insert({u, w});
+                edges[u].push_back({v, w});
+                edges[v].push_back({u, w});
             }
         }
     }

@@ -1,7 +1,7 @@
-#include <graph.hpp>
-#include <util.hpp>
 #include <iostream>
 #include <string>
+#include <graph.hpp>
+#include <util.hpp>
 
 #ifdef TIMING
 #include <chrono>

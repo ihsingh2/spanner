@@ -1,11 +1,13 @@
-#include <graph.hpp>
-#include <util.hpp>
 #include <cmath>
 #include <ctime>
 #include <limits>
+#include <unordered_map>
+
 #include <iostream>
 #include <stdexcept>
-#include <unordered_map>
+
+#include <graph.hpp>
+#include <util.hpp>
 
 #ifdef TIMING
 #include <chrono>
@@ -43,8 +45,8 @@ Graph Graph::spanner(int k, int joining_method) {
     }
 
     Graph S(num_vertices);
-    std::vector<std::set<std::pair<int,int>>> edges = adj;
-    std::vector<std::set<std::pair<int,double>>> E_prev(num_vertices);
+    std::vector<std::list<std::pair<int,int>>> edges = adj;
+    std::vector<std::list<std::pair<int,double>>> E_prev(num_vertices);
     std::vector<int> C_prev(num_vertices);
     std::vector<int> C_prev_prev(num_vertices);
     for (int u = 0; u < num_vertices; u++) {
@@ -65,7 +67,7 @@ Graph Graph::spanner(int k, int joining_method) {
 
     // I: Forming the clusters
     for (int i = 0; i < num_iterations; i++) {
-        std::vector<std::set<std::pair<int,double>>> E_i(num_vertices);
+        std::vector<std::list<std::pair<int,double>>> E_i(num_vertices);
         std::vector<int> C_i(num_vertices, UNCLUSTERED);
         std::vector<bool> removed(num_edges, false);
 
@@ -93,8 +95,8 @@ Graph Graph::spanner(int k, int joining_method) {
         for (int u = 0; u < num_vertices; u++) {
             for (auto [v, w]: E_prev[u]) {
                 if (IS_CLUSTERED(u) && IS_CLUSTERED(v)) {
-                    E_i[u].insert({v, w});
-                    E_i[v].insert({u, w});
+                    E_i[u].push_back({v, w});
+                    E_i[v].push_back({u, w});
                 }
             }
         }
@@ -131,8 +133,8 @@ Graph Graph::spanner(int k, int joining_method) {
                     double w_min = W_min[u];
                     C_i[u] = C_i[v_min];
                     S.add_edge(u, v_min, w_min);
-                    E_i[u].insert({v_min, w_min});
-                    E_i[v_min].insert({u, w_min});
+                    E_i[u].push_back({v_min, w_min});
+                    E_i[v_min].push_back({u, w_min});
                     for (auto [v, idx]: edges[u]) {
                         if (IN_SAME_CLUSTER(v, v_min)) {
                             removed[idx] = true;
