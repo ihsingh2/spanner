@@ -6,18 +6,20 @@ Implementation and analysis of the algorithms described in:
 
 - Baswana, Surender & Sen, Sandeep. (2003). A Simple and Linear Time Randomized Algorithm for Computing Sparse Spanners in Weighted Graphs
 
-## Steps to build
+## Instructions
 
-```console
+### Steps to build
+
+```shell
 mkdir build/
 cd build/
 cmake ..
 make
 ```
 
-## Steps to run
+### Steps to run
 
-```console
+```shell
 ./build/spanner input/<graph.mtx> <algorithm> [<k>]
 
 # algorithm:
@@ -26,21 +28,31 @@ make
 #     2: (2k - 1)-spanner (cluster-cluster joining)
 ```
 
-## Using scripts
+### Using scripts
 
-### 1. Generating dense graphs
+#### 1. Generating dense graphs
 
-```console
-python scripts/generator.py <num_vertices>
+```shell
+python scripts/generator.py <outfile> <num_vertices>
 ```
 
-**Note:** Currently set to write to input/custom.mtx.
+#### 2. Running tests
 
-### 2. Running tests
-
-```console
+```shell
 ./tests.sh <algorithm> [<k>]
 ```
+
+### Using macros
+
+Change (append/remove) the following line in [CMakeLists.txt](CMakeLists.txt).
+
+```cmake
+target_compile_definitions(spanner PRIVATE TIMING)
+```
+
+- ``VALIDATION`` - Validate the algorithm's output by running APSP.
+
+- ``TIMING`` - Measure the time taken by every stage of the algorithm.
 
 ## File Structure
 

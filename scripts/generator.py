@@ -1,18 +1,18 @@
 import random
 import sys
 
-if len(sys.argv) != 2:
-    print(f'usage: {sys.argv[0]} <num_vertices>')
+if len(sys.argv) != 3:
+    print(f'usage: {sys.argv[0]} <outfile> <num_vertices>')
     sys.exit(0)
 
-mean = int(sys.argv[1])
+mean = int(sys.argv[2])
 dev = mean / 10
 
 num_vertices = int(random.normalvariate(mean, dev))
 num_edges = int(num_vertices**2 / 4)
 edges = { i: [] for i in range(num_vertices) }
 
-with open('input/custom.mtx', 'w') as f:
+with open(sys.argv[1], 'w') as f:
     f.write(f'{num_vertices} {num_vertices} {num_edges}\n')
 
     while num_edges > 0:
