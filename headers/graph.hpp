@@ -1,6 +1,5 @@
 #pragma once
 #include <list>
-#include <string>
 #include <vector>
 
 #define VERTEX_CLUSTER_JOINING 0

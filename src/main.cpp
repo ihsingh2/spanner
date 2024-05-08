@@ -1,11 +1,6 @@
 #include <iostream>
-#include <string>
 #include <graph.hpp>
 #include <util.hpp>
-
-#ifdef TIMING
-#include <chrono>
-#endif
 
 int usage(char* argv[]) {
     std::cerr << "usage: " << argv[0] << " <graph.mtx> <algorithm> [<k>]" << std::endl;

@@ -1,17 +1,14 @@
 #include <algorithm>
-#include <cmath>
 #include <limits>
-#include <unordered_map>
-
-#include <stdexcept>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-
 // #include <omp.h>
+
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+
 #include <graph.hpp>
 #include <minheap.hpp>
-#include <util.hpp>
 
 Graph::Graph() {
     num_vertices = 0;
