@@ -6,7 +6,7 @@ set output 'plots/2k-1-spanner/execution_time.png'
 set title 'Total execution time'
 set ylabel 'Runtime (in ms)'
 set xlabel 'Size of the graph, |E(G)|'
-set xrange [0:2500000]
+set xrange [0:4500000]
 set format x "%.0s*10^{%T}"
 set grid
 
@@ -19,7 +19,7 @@ set output 'plots/2k-1-spanner/spanner_size.png'
 set title 'Size of spanner'
 set ylabel 'Size of the spanner, |E(S)|'
 set xlabel 'Order of the graph, |V(G)|'
-set xrange [0:500000]
+set xrange [0:1000000]
 set format x "%.0s*10^{%T}"
 set grid
 
@@ -33,7 +33,7 @@ set output 'plots/2k-1-spanner/stepwise_time.png'
 set title 'Stepwise execution time for t = 5'
 set ylabel 'Runtime (in ms)'
 set xlabel 'Size of the graph, |E(G)|'
-set xrange [0:2000000]
+set xrange [0:4500000]
 set format x "%.0s*10^{%T}"
 set grid
 
@@ -49,7 +49,7 @@ set output 'plots/3-spanner/execution_time.png'
 set title 'Total execution time'
 set ylabel 'Runtime (in ms)'
 set xlabel 'Size of the graph, |E(G)|'
-set xrange [0:2500000]
+set xrange [0:4500000]
 set format x "%.0s*10^{%T}"
 set grid
 
@@ -60,7 +60,7 @@ set output 'plots/3-spanner/spanner_size.png'
 set title 'Size of spanner'
 set ylabel 'Size of the spanner, |E(S)|'
 set xlabel 'Order of the graph, |V(G)|'
-set xrange [0:500000]
+set xrange [0:1000000]
 set format x "%.0s*10^{%T}"
 set grid
 
@@ -71,7 +71,7 @@ set output 'plots/3-spanner/stepwise_time.png'
 set title 'Stepwise execution time'
 set ylabel 'Runtime (in ms)'
 set xlabel 'Size of the graph, |E(G)|'
-set xrange [0:2000000]
+set xrange [0:4500000]
 set format x "%.0s*10^{%T}"
 set grid
 
